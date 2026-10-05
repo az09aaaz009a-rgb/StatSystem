@@ -11,7 +11,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -21,6 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class CombatListener implements Listener {
     private final StatSystem plugin;
+    private final java.util.Set<java.util.UUID> critFlags = new java.util.HashSet<>();
 
     public CombatListener(StatSystem plugin) {
         this.plugin = plugin;
@@ -57,7 +59,8 @@ public class CombatListener implements Listener {
 
         if (roll(t.critChance)) {
             dmg *= t.critMultiplier;
-            attacker.sendActionBar(net.kyori.adventure.text.Component.text("§c§l크리티컬!"));
+            attacker.sendMessage("§c크리티컬");
+            critFlags.add(e.getEntity().getUniqueId());
             attacker.playSound(attacker.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
         }
         e.setDamage(dmg);
@@ -83,7 +86,10 @@ public class CombatListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDamaged(EntityDamageByEntityEvent e) {
         double finalDamage = e.getFinalDamage();
+        boolean crit = critFlags.remove(e.getEntity().getUniqueId());
         if (finalDamage <= 0) return;
+        Player shower = attackerOf(e.getDamager());
+        if (shower != null) DamageIndicator.show(plugin, shower, e.getEntity(), finalDamage, crit);
 
         Player attacker = attackerOf(e.getDamager());
         if (attacker != null && !attacker.isDead()) {
@@ -102,30 +108,22 @@ public class CombatListener implements Listener {
         p.setHealth(Math.min(cap, p.getHealth() + amount));
     }
 
-    /** 몬스터 처치 경험치 */
+    /** 바닐라 경험치(구슬 획득)를 스탯 시스템 경험치로 변환. 바닐라 경험치는 올라가지 않음 */
     @EventHandler
-    public void onDeath(EntityDeathEvent e) {
-        LivingEntity dead = e.getEntity();
-        Player killer = dead.getKiller();
-        if (killer == null || dead instanceof Player && !(plugin.getConfig().getLong("leveling.exp-sources.player-kill", 0) > 0)) return;
+    public void onVanillaExp(PlayerExpChangeEvent e) {
+        int amount = e.getAmount();
+        if (amount <= 0) return;
+        double mul = plugin.getConfig().getDouble("leveling.vanilla-exp-multiplier", 1.0);
+        long gain = Math.round(amount * mul);
+        e.setAmount(0);
+        if (gain > 0) plugin.levels().addExp(e.getPlayer(), gain);
+    }
 
-        long exp;
-        if (dead instanceof Player) {
-            exp = plugin.getConfig().getLong("leveling.exp-sources.player-kill", 0);
-        } else {
-            String path = "leveling.exp-sources.mobs." + dead.getType().name();
-            if (plugin.getConfig().contains(path)) {
-                exp = plugin.getConfig().getLong(path);
-            } else {
-                AttributeInstance max = dead.getAttribute(Attribute.MAX_HEALTH);
-                double hp = max == null ? 20 : max.getValue();
-                exp = Math.round(hp * plugin.getConfig().getDouble("leveling.exp-sources.mob-health-factor", 1.0));
-            }
-        }
-        if (exp > 0) {
-            plugin.levels().addExp(killer, exp);
-            killer.sendActionBar(net.kyori.adventure.text.Component.text("§a+" + exp + " 경험치"));
-        }
+    /** 죽어도 레벨 표시가 사라지지 않게 */
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent e) {
+        e.setKeepLevel(true);
+        e.setDroppedExp(0);
     }
 
     @EventHandler
@@ -133,11 +131,15 @@ public class CombatListener implements Listener {
         PlayerData d = plugin.data().get(e.getPlayer().getUniqueId());
         plugin.levels().reconcile(d);
         plugin.effects().apply(e.getPlayer());
+        plugin.levels().syncBar(e.getPlayer());
     }
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
-        plugin.getServer().getScheduler().runTask(plugin, () -> plugin.effects().apply(e.getPlayer()));
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            plugin.effects().apply(e.getPlayer());
+            plugin.levels().syncBar(e.getPlayer());
+        });
     }
 
     @EventHandler

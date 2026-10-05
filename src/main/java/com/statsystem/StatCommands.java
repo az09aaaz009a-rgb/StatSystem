@@ -115,6 +115,13 @@ public class StatCommands implements CommandExecutor, TabCompleter {
                 }
                 return true;
             }
+            case "표생성": {
+                if (!admin(sender)) return true;
+                plugin.levels().generateTable();
+                plugin.reload();
+                sender.sendMessage("§alevels.yml 을 config.yml 공식으로 새로 만들었습니다. (기존 수정 내용은 덮어써집니다)");
+                return true;
+            }
             case "리로드": case "reload": {
                 if (!admin(sender)) return true;
                 plugin.reload();
@@ -257,7 +264,7 @@ public class StatCommands implements CommandExecutor, TabCompleter {
         String name = cmd.getName().toLowerCase();
         String cur = args[args.length - 1];
         if (name.equals("stat")) {
-            if (args.length == 1) out.addAll(Arrays.asList("정보", "올리기", "초기화", "리로드"));
+            if (args.length == 1) out.addAll(Arrays.asList("정보", "올리기", "초기화", "표생성", "리로드"));
             else if (args.length == 2 && args[0].equals("올리기"))
                 for (Stat s : Stat.values()) out.add(s.label);
             else if (args.length == 2 && args[0].equals("초기화")) {

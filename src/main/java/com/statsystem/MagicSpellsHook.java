@@ -84,6 +84,39 @@ public class MagicSpellsHook implements Listener {
         }
     }
 
+    private Object varManager;
+    private Method varGetter;
+    private boolean varWarned = false;
+
+    /** MagicSpells 변수 값 읽기 (쿨타임 표시용). 실패하면 0 */
+    public double getVariable(Player p, String name) {
+        try {
+            if (varGetter == null) {
+                Plugin ms = Bukkit.getPluginManager().getPlugin("MagicSpells");
+                if (ms == null) return 0;
+                Class<?> msCls = Class.forName("com.nisovin.magicspells.MagicSpells", true, ms.getClass().getClassLoader());
+                varManager = msCls.getMethod("getVariableManager").invoke(null);
+                for (Method m : varManager.getClass().getMethods()) {
+                    if (m.getName().equals("getValue") && m.getParameterCount() == 2 && m.getParameterTypes()[0] == String.class) {
+                        varGetter = m;
+                        break;
+                    }
+                }
+                if (varGetter == null) throw new IllegalStateException("getValue 메서드를 찾지 못함");
+            }
+            Class<?> second = varGetter.getParameterTypes()[1];
+            Object arg = second == String.class ? p.getName() : p;
+            Object r = varGetter.invoke(varManager, name, arg);
+            return r instanceof Number ? ((Number) r).doubleValue() : 0;
+        } catch (Exception ex) {
+            if (!varWarned) {
+                varWarned = true;
+                plugin.getLogger().warning("MagicSpells 변수 읽기 실패 (쿨타임 표시가 0으로 나옵니다): " + ex);
+            }
+            return 0;
+        }
+    }
+
     public boolean isEnabled() {
         return enabled;
     }

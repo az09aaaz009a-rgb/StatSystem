@@ -39,6 +39,8 @@ public class StatSystem extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, () -> data.save(), 20L * 300, 20L * 300);
         Bukkit.getScheduler().runTaskTimer(this, () -> hook.cleanup(), 200L, 200L);
 
+        new Hud(this).runTaskTimer(this, 20L, Math.max(2L, getConfig().getLong("hud.interval-ticks", 10L)));
+
         for (Player p : Bukkit.getOnlinePlayers()) {
             levels.reconcile(data.get(p.getUniqueId()));
             effects.apply(p);
@@ -78,6 +80,7 @@ public class StatSystem extends JavaPlugin {
 
     public void reload() {
         reloadConfig();
+        levels.loadTable();
         for (Player p : Bukkit.getOnlinePlayers()) levels.reconcile(data.get(p.getUniqueId()));
         effects.applyAll();
     }
