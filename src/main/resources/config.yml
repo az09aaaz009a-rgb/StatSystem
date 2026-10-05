@@ -1,0 +1,50 @@
+# ============================================================
+# StatSystem 설정 (/스탯 리로드 로 적용)
+# ============================================================
+
+leveling:
+  max-level: 100                 # 최대 레벨
+  # 레벨 L -> L+1 에 필요한 경험치 = base + growth*(L-1) + quadratic*(L-1)^2
+  exp:
+    base: 100
+    growth: 50
+    quadratic: 0
+    overrides: {}                # 특정 레벨 구간만 직접 지정. 예) "10": 3000
+  stat-points-per-level: 3       # 레벨업마다 지급하는 스탯 포인트
+  stat-points-overrides: {}      # 특정 레벨 도달 시 지급량 직접 지정. 예) "10": 10
+  exp-sources:
+    mob-health-factor: 1.0       # 몬스터 경험치 = 최대체력 x 이 값 (아래 mobs 에 없을 때)
+    mobs: {}                     # 몬스터별 고정 경험치. 예) ZOMBIE: 20
+    player-kill: 0               # 플레이어를 죽였을 때 경험치
+
+stats:
+  max:                           # 스탯별 최대치
+    str: 100
+    dex: 100
+    vit: 100
+    mag: 100
+  # 스탯 1당 / 10당 효과 (퍼센트는 % 단위 숫자)
+  effects:
+    str:
+      skill-damage-per-point: 0.5      # 힘 1당 스킬 피해 +0.5%
+      lifesteal-per-10: 0.5            # 힘 10당 생명력 흡수 +0.5% (입힌 피해 기준)
+    dex:
+      move-speed-per-point: 0.1        # 민첩 1당 이동속도 +0.1%
+      crit-chance-per-point: 0.2       # 민첩 1당 크리티컬 확률 +0.2%
+      crit-damage-per-point: 0.5       # 민첩 1당 크리티컬 피해 +0.5%
+      dodge-per-10: 0.5                # 민첩 10당 공격 회피 +0.5%
+    vit:
+      damage-reduction-per-point: 0.2  # 체력 1당 받는 피해 -0.2%
+      on-hit-heal-per-10: 0.5          # 체력 10당 피격 시 체력 회복 +0.5
+    mag:
+      skill-damage-per-point: 0.5      # 마법 1당 스킬 피해 +0.5%
+      cooldown-reduction-per-10: 0.5   # 마법 10당 스킬 쿨타임 -0.5%
+
+combat:
+  base-crit-damage-percent: 150        # 기본 크리티컬 배율(%). 150이면 크리티컬 시 1.5배
+  limits:                              # 효과 상한(%)
+    max-crit-chance: 100
+    max-dodge: 60
+    max-damage-reduction: 80
+    max-cooldown-reduction: 70
+    max-lifesteal: 50
