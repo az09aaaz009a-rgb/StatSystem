@@ -12,6 +12,20 @@ dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT'
 }
 
+// 모든 파일을 저장소 맨 위(루트)에 올리는 구조용 설정
+sourceSets {
+    main {
+        java {
+            srcDirs = ['.']
+            include '*.java'
+        }
+        resources {
+            srcDirs = ['.']
+            include 'plugin.yml', 'config.yml'
+        }
+    }
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.release = 21
     options.encoding = 'UTF-8'
