@@ -148,8 +148,10 @@ public class StatCommands implements CommandExecutor, TabCompleter {
                 t.skillDamage, t.attack, t.critChance, t.critMultiplier, t.lifesteal));
         to.sendMessage(String.format("§7이속 §f+%.1f%%  §7회피 §f%.1f%%  §7피해감소 §f%.1f%%  §7피격회복 §f%.1f  §7쿨감 §f%.1f%%",
                 t.moveSpeed, t.dodge, t.reduction, t.onHitHeal, t.cooldownReduction));
-        to.sendMessage(String.format("§7추가 최대 체력 §f+%.1f", d.get(Stat.VIT)
-                * plugin.getConfig().getDouble("stats.effects.vit.max-health-per-point", 1.0)));
+        to.sendMessage(String.format("§7추가 최대 체력 §f+%.1f §7(실제 최대 체력 §f%.1f§7)", d.get(Stat.VIT)
+                * plugin.getConfig().getDouble("stats.effects.vit.max-health-per-point", 1.0),
+                target.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH) == null ? 0.0
+                        : target.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue()));
     }
 
     // ---------------- /레벨설정 ----------------

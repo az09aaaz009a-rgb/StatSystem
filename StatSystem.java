@@ -45,7 +45,7 @@ public class StatSystem extends JavaPlugin {
             levels.reconcile(data.get(p.getUniqueId()));
             effects.apply(p);
         }
-        getLogger().info("StatSystem 활성화");
+        getLogger().info("StatSystem " + getDescription().getVersion() + " 활성화 (체력 스탯: 최대 체력 증가 포함)");
     }
 
     @Override
@@ -76,6 +76,10 @@ public class StatSystem extends JavaPlugin {
         d.stats[s.ordinal()] += add;
         effects.apply(p);
         p.sendMessage("§a[스탯] " + s.label + " +" + add + " §7(현재 " + d.get(s) + ", 남은 포인트 " + levels.available(d) + ")");
+        if (s == Stat.VIT) {
+            var attr = p.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+            p.sendMessage("§7[스탯] 현재 최대 체력: §f" + (attr == null ? "?" : String.format("%.1f", attr.getValue())));
+        }
     }
 
     public void reload() {

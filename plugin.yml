@@ -1,5 +1,5 @@
 name: StatSystem
-version: 1.0.0
+version: 1.0.1
 main: com.statsystem.StatSystem
 api-version: '1.21'
 softdepend: [MagicSpells]

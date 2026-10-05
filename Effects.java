@@ -34,17 +34,24 @@ public class Effects {
 
     /** 체력 스탯: 최대 체력 증가 */
     private void applyHealth(Player p) {
-        AttributeInstance attr = p.getAttribute(Attribute.MAX_HEALTH);
-        if (attr == null) return;
-        for (AttributeModifier m : attr.getModifiers().toArray(new AttributeModifier[0])) {
-            if (m.getKey().equals(healthKey)) attr.removeModifier(m);
+        try {
+            AttributeInstance attr = p.getAttribute(Attribute.MAX_HEALTH);
+            if (attr == null) {
+                plugin.getLogger().warning("MAX_HEALTH 속성을 찾지 못했습니다: " + p.getName());
+                return;
+            }
+            for (AttributeModifier m : attr.getModifiers().toArray(new AttributeModifier[0])) {
+                if (m.getKey().equals(healthKey)) attr.removeModifier(m);
+            }
+            PlayerData d = plugin.data().get(p.getUniqueId());
+            double bonus = d.get(Stat.VIT) * plugin.getConfig().getDouble("stats.effects.vit.max-health-per-point", 1.0);
+            if (bonus > 0) {
+                attr.addModifier(new AttributeModifier(healthKey, bonus, AttributeModifier.Operation.ADD_NUMBER));
+            }
+            if (p.getHealth() > attr.getValue()) p.setHealth(attr.getValue());
+        } catch (Exception ex) {
+            plugin.getLogger().severe("최대 체력 적용 실패 (" + p.getName() + "): " + ex);
         }
-        PlayerData d = plugin.data().get(p.getUniqueId());
-        double bonus = d.get(Stat.VIT) * plugin.getConfig().getDouble("stats.effects.vit.max-health-per-point", 1.0);
-        if (bonus > 0) {
-            attr.addModifier(new AttributeModifier(healthKey, bonus, AttributeModifier.Operation.ADD_NUMBER));
-        }
-        if (p.getHealth() > attr.getValue()) p.setHealth(attr.getValue());
     }
 
     public void applyAll() {
