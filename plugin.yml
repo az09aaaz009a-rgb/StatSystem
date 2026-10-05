@@ -1,0 +1,31 @@
+name: StatSystem
+version: 1.0.0
+main: com.statsystem.StatSystem
+api-version: '1.21'
+softdepend: [MagicSpells]
+description: 레벨/스탯 시스템 (MagicSpells 연동)
+commands:
+  stat:
+    aliases: [스탯]
+    description: 스탯 창 열기 / 스탯 관련 명령어
+    usage: /스탯 [정보|올리기|초기화|리로드]
+  levelset:
+    aliases: [레벨설정]
+    description: 원하는 레벨로 바로 설정
+    usage: /레벨설정 <플레이어> <레벨>
+  giveexp:
+    aliases: [경험치지급]
+    description: 경험치 지급
+    usage: /경험치지급 <플레이어> <양>
+  givepoint:
+    aliases: [포인트지급]
+    description: 스탯 포인트 추가 지급
+    usage: /포인트지급 <플레이어> <수>
+  statweapon:
+    aliases: [스탯무기]
+    description: 손에 든 무기에 스탯 부여
+    usage: /스탯무기 <설정|제거|확인> ...
+permissions:
+  statsystem.admin:
+    default: op
+    description: 스탯 시스템 관리자 명령어

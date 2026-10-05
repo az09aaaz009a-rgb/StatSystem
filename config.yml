@@ -1,0 +1,64 @@
+# ============================================================
+# StatSystem 설정 (/스탯 리로드 로 적용)
+# ============================================================
+
+leveling:
+  max-level: 100                 # 최대 레벨
+  # 레벨 L -> L+1 에 필요한 경험치 = base + growth*(L-1) + quadratic*(L-1)^2
+  exp:
+    base: 100
+    growth: 50
+    quadratic: 0
+    overrides: {}                # 특정 레벨 구간만 직접 지정. 예) "10": 3000
+  stat-points-per-level: 3       # 레벨업마다 지급하는 스탯 포인트
+  stat-points-overrides: {}      # 특정 레벨 도달 시 지급량 직접 지정. 예) "10": 10
+  vanilla-exp-multiplier: 1.0    # 바닐라 경험치(몬스터/광석 등 구슬)를 스탯 경험치로 바꿀 때 배율. 2.0이면 2배
+
+display:
+  use-vanilla-xp-bar: false      # true 면 마인크래프트 경험치 바(레벨 숫자 + 게이지)에도 스탯 레벨을 표시 (인챈트/모루와 충돌하니 보통 false)
+
+damage-indicator:
+  enabled: true                  # 때릴 때 떠오르는 데미지 숫자 (때린 사람에게만 보임)
+
+# 하단(액션바) 표시. 들고 있는 아이템 이름(대문자)별로 다른 문구 사용. 없으면 default
+# 사용 가능한 값: {level} {exp} {need} {points} {var:MagicSpells변수이름}
+hud:
+  enabled: true
+  interval-ticks: 10
+  formats:
+    default: "&8[ &fLv.{level} &8] [ &f{exp} / {need} &8]"
+    IRON_SWORD: "&8[ &fLv.{level} &8] [ &f{exp} / {need} &8]   &b스킬 &f{var:slash_cd}초 &8| &d궁극기 &f{var:ult_cd}초 &8| &a구르기 &f{var:roll_cd}초 &8| &e검 &f{var:sword_cd}초"
+    DIAMOND_SWORD: "&8[ &fLv.{level} &8] [ &f{exp} / {need} &8]   &c검사 스킬 &f{var:dia_cd}초"
+
+stats:
+  max:                           # 스탯별 최대치
+    str: 100
+    dex: 100
+    vit: 100
+    mag: 100
+  # 스탯 1당 / 10당 효과 (퍼센트는 % 단위 숫자)
+  effects:
+    str:
+      skill-damage-per-point: 0.5      # 힘 1당 스킬 피해 +0.5%
+      lifesteal-per-10: 0.5            # 힘 10당 생명력 흡수 +0.5% (입힌 피해 기준)
+    dex:
+      move-speed-per-point: 0.1        # 민첩 1당 이동속도 +0.1%
+      crit-chance-per-point: 0.2       # 민첩 1당 크리티컬 확률 +0.2%
+      crit-damage-per-point: 0.5       # 민첩 1당 크리티컬 피해 +0.5%
+      dodge-per-10: 0.5                # 민첩 10당 공격 회피 +0.5%
+    vit:
+      max-health-per-point: 1.0         # 체력 1당 최대 체력 +1.0 (2.0 = 하트 1칸)
+      damage-reduction-per-point: 0.2  # 체력 1당 받는 피해 -0.2%
+      on-hit-heal-per-10: 0.5          # 체력 10당 피격 시 체력 회복 +0.5
+    mag:
+      skill-damage-per-point: 0.5      # 마법 1당 스킬 피해 +0.5%
+      cooldown-reduction-per-10: 0.5   # 마법 10당 스킬 쿨타임 -0.5%
+
+combat:
+  base-crit-damage-percent: 150        # 기본 크리티컬 배율(%). 150이면 크리티컬 시 1.5배
+  limits:                              # 효과 상한(%)
+    max-crit-chance: 100
+    max-dodge: 60
+    max-damage-reduction: 80
+    max-cooldown-reduction: 70
+    max-lifesteal: 50
